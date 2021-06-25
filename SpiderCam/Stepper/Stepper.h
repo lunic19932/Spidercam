@@ -10,9 +10,13 @@
 #include "Arduino.h"
 #include "PinDefinition.h"
 #include "ArduinoSTL.h"
+#include "StepperState.h"
 
 class Stepper {
+private:
+	StepperState getCurrentState();
 public:
+
 	Stepper( );
 	virtual ~Stepper();
 
@@ -22,6 +26,7 @@ public:
 	float getDurationOfAcceleration(unsigned int steps);
 	void prepareMovement(long steps);
 	bool isNextStepper(void);
+	unsigned int calculateNextInterval();
 public:
 	static void condinateStepper(void);
 	static void runMovement(void);
@@ -29,7 +34,6 @@ public:
 
 	static std::vector<Stepper> stepperVector;
 	static volatile byte remainingSteppersFlag=0;
-	static volatile byte nextStepperFlag=0;
 private:
 	static void setNextInterruptInterval(void);
 	static void adjustSpeedScales(void);
@@ -39,6 +43,7 @@ private:
 protected:
 	const int stepperIndex;
 private:
+	StepperState state;
 	float acceleration;
 	volatile unsigned long minStepInterval; // ie. max speed, smaller is faster
 
@@ -49,18 +54,19 @@ private:
 	// per movement variables (only changed once per movement)
 	volatile int dir;                        // current direction of movement, used to keep track of position
 	volatile unsigned int totalSteps;        // number of steps requested for current movement
-	volatile bool movementDone;      // true if the current movement has been completed (used by main program to wait for completion)
-	volatile unsigned int rampUpStepCount;   // number of steps taken to reach either max speed, or half-way to the goal (will be zero until this number is known)
-	volatile unsigned long estStepsToSpeed;  // estimated steps required to reach max speed
+	volatile unsigned long stepsToMaxSpeed;  // estimated steps required to reach max speed
+	volatile unsigned long stepsToStop;  // estimated steps required to reach max speed
 	volatile unsigned long estTimeForMove;   // estimated time (interrupt ticks) required to complete movement
 	volatile unsigned long rampUpStepTime;
 	volatile float speedScale;               // used to slow down this motor to make coordinated movement with other motors
+	volatile bool changeDir;
 
 	// per iteration variables (potentially changed every interrupt)
 	volatile unsigned int accIndex;                 // index in acceleration curve, used to calculate next interval
 	volatile float currentDelay;                        // current interval length
 	volatile unsigned long scaledDelay;               // above variable truncated
 	volatile unsigned int stepCount;         // number of steps completed in current movement
+	volatile bool nextStepper;
 };
 
 
