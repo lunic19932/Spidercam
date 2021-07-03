@@ -51,7 +51,10 @@
 #define TIMER1_INTERRUPTS_ON    TIMSK1 |=  (1 << OCIE1A);
 #define TIMER1_INTERRUPTS_OFF   TIMSK1 &= ~(1 << OCIE1A);
 
-
+#define axisIndexA 0
+#define axisIndexB 1
+#define axisIndexC 2
+#define axisIndexD 3
 
 
 #endif /* PINDEFINITION_H_ */
