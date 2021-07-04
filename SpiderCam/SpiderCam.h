@@ -10,7 +10,6 @@
 #include "Vec3d.h"
 #include "Axis.h"
 
-void adjustSpeedScales();
 
 
 class SpiderCam {
@@ -20,6 +19,7 @@ public:
 	void moveToPos(float speed,float x,float y,float z);
 	Vec3d getCurrentPos();
 	void coordinateMove();
+	Axis getAxis(int axisIndex);
 
 private:
 	Vec3d posCurrent,posTarget,posBegin;//Position Cam in mm
