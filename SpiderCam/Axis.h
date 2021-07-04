@@ -11,7 +11,7 @@
 #include "Vec3d.h"
 
 class Axis {
-	private:
+private:
 	typedef void (*executeStep)();
 	typedef void (*setDir)(int dir);
 	void stepA();
@@ -22,8 +22,13 @@ class Axis {
 	void dirB(int dir);
 	void dirC(int dir);
 	void dirD(int dir);
+	void initA();
+	void initB();
+	void initC();
+	void initD();
 public:
-	Axis(Vec3d* currentPos,Vec3d* currentPos,Vec3d axisPos,float winchRadius,float rotationPerStep,executeStep executeStep,setDir);
+	Axis(Vec3d *currentPos, Vec3d *currentPos, Vec3d axisPos, float winchRadius,
+			float rotationPerStep, executeStep executeStep, setDir);
 	virtual ~Axis();
 	int calculateSteps();
 	void makeStep();
@@ -36,8 +41,8 @@ private:
 	int increasePerStep;
 	float rotationPerStep;
 	Vec3d axisPos;
-	Vec3d* currentPos;
-	Vec3d* targetPos;
+	Vec3d *currentPos;
+	Vec3d *targetPos;
 	float progress;
 	int steps;
 	int stepsToMake;
