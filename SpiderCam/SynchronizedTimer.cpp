@@ -1,21 +1,15 @@
 /*
  * SynchronizedTimer.cpp
  *
- *  Created on: 02.07.2021
- *      Author: luisn
+ *  Created on: 06.07.2021
+ *      Author: Luisn
  */
-
+#include "Arduino.h"
 #include "SynchronizedTimer.h"
-#include <Arduino.h>
-const int SynchronizedTimer::timerCount = 4;
-const float SynchronizedTimer::movePerTik = 1 / 200;
-const float SynchronizedTimer::preScalerCompensation = 1.024;
-const int SynchronizedTimer::secInMicroSec = 1000000;
-const int SynchronizedTimer::minPeriodLength = 900;
-const int SynchronizedTimer::startAccelPeriodLength = 1500;
+
 SynchronizedTimer::SynchronizedTimer() :
-		tikTarget(0), tiks(0), nextTikAt(0), stepSize(0), stepThisPeriod(false), interval(
-				0) {
+		nextTikAt(0), stepSize(0), tikTarget(0), tiks(0), tikThisInterval(
+				false), interval(0), done(false) {
 
 }
 
@@ -23,156 +17,68 @@ SynchronizedTimer::~SynchronizedTimer() {
 	// TODO Auto-generated destructor stub
 }
 
-void SynchronizedTimer::checkTimer() {
-	if ((int) nextTikAt == periodCount && tiks < tikTarget) {
-		stepThisPeriod = true;
-		timerToRun++;
-		interval = (nextTikAt - periodCount) * currentPeriodLength;
-		nextTikAt += stepSize;
+char SynchronizedTimer::checkTimer(int tik) {
+	tikThisInterval = 0;
+	if (!done && (int) nextTikAt == tik) {
+		tikThisInterval = 1;
+
+
 	}
-	checkedTimer++;
-	if (checkedTimer == timerCount) {
-		periodCount++;
-		checkedTimer = 0;
-	}
+
+	return tikThisInterval;
 }
 
-static void SynchronizedTimer::init() {
-	noInterrupts();
-	TCCR1A = 0;
-	TCCR1B = 0;
-	TCNT1 = 0;
-
-	OCR1A = 1000;                             // compare value
-	TCCR1B |= (1 << WGM12);                   // CTC mode
-	TCCR1B |= ((1 << CS11) | (1 << CS10));    // 64 prescaler
-	interrupts();
-	for (int i = 0; i < timerCount; i++) {
-		timerArray[i] = SynchronizedTimer();
-	}
+void SynchronizedTimer::calcStepSize(int absolutTiks) {
+	stepSize = absolutTiks /(float) tikTarget;
 }
 
-static int SynchronizedTimer::coordinateTimer() {
-	triggeredTimer = 0;
-	if (remainingTimer != 0) {
-		if (timerToRun == 0) {
-			calcPeriodLength();
-			for (int i = 0; i < timerCount; i++) {
-				timerArray[i].checkTimer();
-			}
-		}
-
-		if (timerToRun > 0) {
-			updateCheckAndTriggerTik();
-
-		}
-	}
-
-	checkAndSetTimer();
-	return triggeredTimer;
+void SynchronizedTimer::reset() {
+	stepSize = 0;
+	nextTikAt = 0;
+	tikTarget = 0;
+	tiks = 0;
+	tikThisInterval = false;
+	interval = 0;
+	done = true;
 }
 
-static void SynchronizedTimer::updateCheckAndTriggerTik() {
-	int lastDelay = OCR1A;
-	for (int i = 0; i < timerCount; i++) {
-		//Update
-		if (timerArray[i].stepThisPeriod) {
-			timerArray[i].interval -= lastDelay;
-		}
-		//CheckandTrigger
-		if (timerArray[i].interval <= 0) {
-			timerToRun--;
-			timerArray[i].stepThisPeriod = false;
-			timerArray[i].tiks++;
-			triggeredTimer |= 1 << i;
-			if (timerArray[i].tiks == timerArray[i].tikTarget) {
-				remainingTimer &= ~(1 << i);
-			}
-		}
+void SynchronizedTimer::start(int absolutSteps, int targetSteps) {
+	reset();
+	tikTarget = targetSteps;
+	calcStepSize(absolutSteps);
+	nextTikAt = 0;
+	done = tikTarget == 0;
+}
+
+void SynchronizedTimer::executeTik() {
+	tikThisInterval = false;
+	tiks++;
+	nextTikAt += stepSize;
+	done = tiks >= tikTarget;
+}
+
+void SynchronizedTimer::updateInterval(int lastDelay) {
+	if (tikThisInterval) {
+		interval -= lastDelay;
 	}
 }
 
-static int SynchronizedTimer::accelTimer() {
-	return currentPeriodLength
-			- (2 * currentPeriodLength) / (4 * (++rampUpIndex) + 1);
+bool SynchronizedTimer::isDone() {
+	return done;
 }
 
-static int SynchronizedTimer::deAccelTimer() {
-	isRampingDown = true;
-	return (currentPeriodLength * (4 * rampUpIndex + 1))
-			/ (4 * (rampUpIndex--) - 1);;
+bool SynchronizedTimer::isTriggered() {
+	return tikThisInterval == 1 && interval <= 0;
 }
 
-static int SynchronizedTimer::calcPeriodLength() {
-
-	if (currentPeriodLength >= startAccelPeriodLength
-			&& targetPeriodLength >= startAccelPeriodLength) {
-		currentPeriodLength = targetPeriodLength;
-	} else if (isRampingDown || tikTarget - tiks > rampUpIndex
-			|| targetPeriodLength > currentPeriodLength) {
-		currentPeriodLength = deAccelTimer();
-		if (currentPeriodLength >= startAccelPeriodLength) {
-			currentPeriodLength = startAccelPeriodLength;
-			isRampingDown = false;
-		}
-
-	} else if (targetPeriodLength < currentPeriodLength) {
-		currentPeriodLength = accelTimer();
-		if (currentPeriodLength < minPeriodLength) {
-			currentPeriodLength = minPeriodLength;
-		}
-	}
-	currentSpeed = (1
-			/ ((currentPeriodLength / secInMicroSec) * preScalerCompensation))
-			* movePerTik;
-	return currentPeriodLength;
+char SynchronizedTimer::isTikingThisInterval() {
+	return tikThisInterval;
 }
 
-static void SynchronizedTimer::checkAndSetTimer() {
-	if (remainingTimer != 0) {
-		int minInterval = 999999;
-		for (int i = 0; i < timerCount; i++) {
-			if (timerArray[i].stepThisPeriod
-					&& timerArray[i].interval < minInterval) {
-				minInterval = timerArray[i].interval;
-			}
-		}
-		OCR1A = minInterval;
-		TCNT1 = 0;
-	}
+int SynchronizedTimer::calcSideInterval(int tik, int tikLength) {
+	return (nextTikAt - tik) * tikLength;
 }
 
-static bool SynchronizedTimer::isRampedDown() {
-	return isRampingDown;
-}
-
-void SynchronizedTimer::startTimer(float speed, int tiksA, int tiksB, int tiksC,
-		int tiksD) {
-	targetSpeed = speed;
-	targetPeriodLength = secInMicroSec
-			/ (speed / (movePerTik / preScalerCompensation));
-	targetPeriodLength =
-			targetPeriodLength < minPeriodLength ?
-					minPeriodLength : targetPeriodLength;
-
-	timerArray[0].tikTarget=tiksA;
-	timerArray[1].tikTarget=tiksB;
-	timerArray[2].tikTarget=tiksC;
-	timerArray[3].tikTarget=tiksD;
-	periodCount=0;
-	checkedTimer = 0;
-	int maxTiks=0;
-	for (int i = 0; i < timerCount; i++) {
-		maxTiks=timerArray[i].tikTarget > maxTiks?timerArray[i].tikTarget:maxTiks;
-	}
-	for (int i = 0; i < timerCount; i++) {
-		timerArray[i].tiks=0;
-		if(timerArray[i].tikTarget>timerArray[i].tiks){
-			remainingTimer|=1<<i;
-			timerArray[i].stepSize=maxTiks/timerArray[i].tikTarget;
-			timerArray[i].nextTikAt=timerArray[i].stepSize;
-			timerArray[i].interval=0;
-			timerArray[i].stepThisPeriod = false;
-		}
-	}
+int SynchronizedTimer::getTiks() {
+	return tiks;
 }

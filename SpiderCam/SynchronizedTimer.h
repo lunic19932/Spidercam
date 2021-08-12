@@ -1,8 +1,8 @@
 /*
  * SynchronizedTimer.h
  *
- *  Created on: 02.07.2021
- *      Author: luisn
+ *  Created on: 06.07.2021
+ *      Author: Luisn
  */
 
 #ifndef SYNCHRONIZEDTIMER_H_
@@ -12,43 +12,29 @@ class SynchronizedTimer {
 public:
 	SynchronizedTimer();
 	virtual ~SynchronizedTimer();
-	int tikTarget;
-	int tiks;
+public:
 	float nextTikAt;
 	float stepSize;
-	bool  stepThisPeriod;
+	int tikTarget;
+	int tiks;
+	char tikThisInterval;
 	int interval;
-	void checkTimer();
+	bool done;
 public:
-	static const int secInMicroSec;
-	static const float preScalerCompensation;
-	static const float movePerTik;
-	static const int timerCount;
-	static const int minPeriodLength;
-	static const int startAccelPeriodLength;
-private:
-	static bool isRampingDown;
-	static float currentSpeed;
-	static float targetSpeed;
-	static int rampUpIndex;
-	static int targetPeriodLength;
-	static int currentPeriodLength;
-	static int periodCount;
-	static char timerToRun;
-	static char triggeredTimer;
-	static char checkedTimer;
-	static char remainingTimer;
-	static SynchronizedTimer timerArray[timerCount];
-public:
-	static void init();
-	static int coordinateTimer();
-	static int accelTimer();
-	static int deAccelTimer();
-	static int calcPeriodLength();
-	static void updateCheckAndTriggerTik();
-	static void checkAndSetTimer();
-	static bool isRampedDown();
-	static void startTimer(float speed,int tiksA,int tiksB,int tiksC,int tiksD);
+	void executeTik();
+	char checkTimer(int tik);
+	int calcSideInterval(int tik,int tikLength);
+	void calcStepSize(int absolutTiks);
+	void reset();
+	void start(int absolutSteps,int targetSteps);
+	void updateInterval(int lastDelay);
+	bool isDone();
+	bool isTriggered();
+	char isTikingThisInterval();
+	int getTiks();
+	int getInterval() const {
+		return interval;
+	}
 };
 
 #endif /* SYNCHRONIZEDTIMER_H_ */

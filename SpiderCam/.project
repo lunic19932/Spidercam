@@ -41,10 +41,5 @@
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.8.3/variants/mega</locationURI>
 		</link>
-		<link>
-			<name>libraries/ArduinoSTL</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoSTL/1.1.0</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

@@ -7,7 +7,7 @@
 
 #ifndef VEC3D_H_
 #define VEC3D_H_
-
+#include "Arduino.h"
 class Vec3d {
 public:
 	Vec3d();
@@ -19,9 +19,10 @@ public:
 	float getLength();
 	Vec3d div(float div);
 	Vec3d multiply(float mul);
+	String toString();
 private:
 	float x,y,z;
-	static float tollerance=0.000000001;
+	static const float tollerance;
 };
 
 #endif /* VEC3D_H_ */

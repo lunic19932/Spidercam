@@ -52,7 +52,7 @@ environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.MCU/ope
 environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.MCU/value=atmega2560
 environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PATH/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PATH/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PATH/value=C\:\\Users\\luisn\\git\\Spidercam\\SpiderCam\\Release
+environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PATH/value=C\:\\Users\\Luisn\\git\\Spidercam\\SpiderCam\\Release
 environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PROJECT_NAME/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PROJECT_NAME/operation=replace
 environment/project/io.sloeber.core.toolChain.release.1161862764/A.BUILD.PROJECT_NAME/value=${ProjName}
@@ -481,7 +481,7 @@ environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.BOARD_NA
 environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.BOARD_NAME/value=Arduino Mega or Mega 2560
 environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.COM_PORT/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.COM_PORT/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.COM_PORT/value=
+environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.COM_PORT/value=COM5
 environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.ECLIPSE_LOCATION/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.ECLIPSE_LOCATION/operation=replace
 environment/project/io.sloeber.core.toolChain.release.1161862764/JANTJE.ECLIPSE_LOCATION/value=C\:\\IDE\\Sloeber\\

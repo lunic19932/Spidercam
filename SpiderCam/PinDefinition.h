@@ -56,5 +56,8 @@
 #define axisIndexC 2
 #define axisIndexD 3
 
+#define axisNum 4
+#define secInMicroSec 1000000
+
 
 #endif /* PINDEFINITION_H_ */

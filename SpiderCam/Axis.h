@@ -9,11 +9,13 @@
 #define AXIS_H_
 
 #include "Vec3d.h"
+#include "Settings.h"
 
 class Axis {
 private:
-	typedef void (*executeStep)();
-	typedef void (*setDir)(int dir);
+	void executeStep();
+	void init();
+	void setDir(int dir);
 	void stepA();
 	void stepB();
 	void stepC();
@@ -27,23 +29,27 @@ private:
 	void initC();
 	void initD();
 public:
-	Axis(Vec3d *currentPos, Vec3d *currentPos, Vec3d axisPos, float winchRadius,
-			float rotationPerStep, executeStep executeStep, setDir);
+	Axis();
+	Axis(Settings setting, int axisIndex);
 	virtual ~Axis();
-	int calculateSteps();
+	int calculateSteps(Vec3d target);
+	void setStep(int stepsToMake);
 	void makeStep();
-	float getProgress();
-
+	void updateSetting(Settings setting);
+	int getDir();
+	int getSteps();
+	Vec3d getPos();
+	void setPosStepper(int posStepper);
+	int getPosStepper();
 private:
+	int axisIndex;
 	int stepDir;
 	int posStepper;
 	float winchRadius;
-	int increasePerStep;
+	float increasePerStep;
 	float rotationPerStep;
+	Settings setting;
 	Vec3d axisPos;
-	Vec3d *currentPos;
-	Vec3d *targetPos;
-	float progress;
 	int steps;
 	int stepsToMake;
 };
